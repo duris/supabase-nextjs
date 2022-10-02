@@ -5,11 +5,26 @@ export default function Auth() {
   const [loading, setLoading] = useState(false)
   const [email, setEmail] = useState('')
   const [pass, setPass] = useState('')
+  const [signUp, setSignUp] = useState(false)
+  const [signIn, setSignIn] = useState(true)
 
-  const handleLogin = async (email) => {
+  const handleLogin = async () => {
     try {
       setLoading(true)
-      const { error } = await supabase.auth.signInWithOtp({ email })
+      const { user, session, error } = await supabase.auth.signInWithPassword({email: email, password: pass})
+      if (error) throw error
+      // alert('Check your email for the login link!')
+    } catch (error) {
+      alert(error.error_description || error.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSignup = async () => {
+    try {
+      setLoading(true)
+      const { user, session, error } = await supabase.auth.signUp({email: email, password: pass})
       if (error) throw error
       alert('Check your email for the login link!')
     } catch (error) {
@@ -19,16 +34,30 @@ export default function Auth() {
     }
   }
 
-
+  const showSignUp = () => {
+    
+    if(!signUp) {
+      setSignUp(true)
+      setSignIn(false)
+    } else {
+      setSignUp(false)
+      setSignIn(true)
+    }
+    
+  }
 
   return (
-    <div className="row flex-center flex">
-      <div className="col-6 form-widget">
-        <h1 className="header">Supabase + Next.js</h1>
-        <p className="description">
+    <>
+    
+    <div className="row flex-center flex float-left">      
+      {
+        signIn?(
+          <div className=" signIn col-6 form-widget">
+        <div>          
+        </div>
+        {/* <p className="description">
           Sign in via magic link with your email below
-        </p>
-        <br/>
+        </p> */}
         <div>
           <input
             className="inputField"
@@ -37,29 +66,77 @@ export default function Auth() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <br/>
-          <br/>
-          <input
-            type="password"
-            placeholder="Enter a pasword..."
-            className="w-64 px-2 py-2 bg-slate-50 rounded outline-none font-medium text-gray-700"
-            value={pass}
-            onChange={e => setPass(e.target.value)}
-          />
         </div>
+       
+        <input
+            className="inputField"
+            type="password"
+            placeholder="Your password"
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+          />
         <div>
           <button
             onClick={(e) => {
               e.preventDefault()
-              handleLogin(email)
+              handleLogin()
             }}
             className="button block"
             disabled={loading}
           >
-            <span className=' bg-blue-300 p-2 inline-block mt-3 rounded-md text-blue-900 hover:bg-blue-400'>{loading ? 'Loading' : 'Sign Up'}</span>
+            <span>{loading ? 'Loading' : 'Login'}</span>
           </button>
         </div>
       </div>
+        ):
+        (
+          <div className="signUp col-6 form-widget float-left">        
+        {/* <p className="description">
+          Sign in via magic link with your email below
+        </p> */}
+        <div>
+          <input
+            className="inputField"
+            type="email"
+            placeholder="Your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
+       
+        <input
+            className="inputField"
+            type="password"
+            placeholder="Your password"
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+          />
+        <div>
+          <button
+            onClick={(e) => {
+              e.preventDefault()
+              handleSignup()
+            }}
+            className="button block"
+            disabled={loading}
+          >
+            <span>{loading ? 'Loading' : 'Sign Up'}</span>
+          </button>
+        </div>
+      </div>
+        )
+      }      
     </div>
+
+    <div className=' mt-20 float-left w-full inline-block'>
+     {
+      signIn?(
+        <button className='bg-blue-200 h-10 p-2 mb-2' onClick={showSignUp}>Create an Account</button>
+      ):(
+        <button className='bg-blue-200 h-10 p-2 mb-2' onClick={showSignUp}>Sign In</button>
+      )
+     }
+     </div>
+    </>
   )
 }

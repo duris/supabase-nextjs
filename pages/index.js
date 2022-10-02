@@ -5,12 +5,15 @@ import { supabase } from '../utils/supabaseClient'
 import Auth from '../components/Auth'
 import Account from '../components/Account'
 import styles from '../styles/Home.module.css'
-
+import { useRouter } from 'next/router'
 
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
   const [session, setSession] = useState(null)
+  const router = useRouter();
+  
+
 
   useEffect(() => {
     let mounted = true
@@ -44,12 +47,14 @@ export default function Home() {
       subscription?.unsubscribe()
     }
   }, [])
-
+  
   return (
+    
     <main className='flex h-screen bg-black'>
-    <div className=' m-auto bg-gray-300 p-6 rounded-xl'>
+    <div className=' m-auto bg-gray-300 p-6 rounded-xl w-[300px]'>
       {!session ? (
         <Auth />
+        // <div>Not signed in</div>
       ) : (
         <Account key={session.user.id} session={session} />
       )}
